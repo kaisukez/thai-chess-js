@@ -12,6 +12,7 @@ export enum SquareIndex {
     a2 =  16, b2 =  17, c2 =  18, d2 =  19, e2 =  20, f2 =  21, g2 =  22, h2 =  23,
     a1 =   0, b1 =   1, c1 =   2, d1 =   3, e1 =   4, f1 =   5, g1 =   6, h1 =   7,
 }
+// @formatter:on
 
 export const RANK_1 = 0
 export const RANK_2 = 1

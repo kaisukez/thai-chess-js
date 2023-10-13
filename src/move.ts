@@ -7,7 +7,7 @@ import {
 
 } from "./constants/Moving"
 
-import { algebraic, clone, file, rank, swapColor } from "./utils"
+import { algebraic, clone, getFile, getRank, swapColor } from "./utils"
 
 import { countPiece, exportFen, updatePiecePositionDictionaryInplace } from "./state"
 
@@ -601,7 +601,7 @@ export function generateMovesForOneSquare(
                     }
                     if (
                         piece === Piece.BIA &&
-                        (rank(squarePointer) === RANK_3 || rank(squarePointer) === RANK_6)
+                        (getRank(squarePointer) === RANK_3 || getRank(squarePointer) === RANK_6)
                     ) {
                         move.promotion = Piece.FLIPPED_BIA
                         move.flags |= BITS.PROMOTION
@@ -640,7 +640,7 @@ export function generateMovesForOneSquare(
                 }
                 if (
                     piece === Piece.BIA &&
-                    (rank(squarePointer) === RANK_3 || rank(squarePointer) === RANK_6)
+                    (getRank(squarePointer) === RANK_3 || getRank(squarePointer) === RANK_6)
                 ) {
                     move.promotion = Piece.FLIPPED_BIA
                     move.flags |= BITS.PROMOTION
@@ -706,11 +706,11 @@ export function getDisambiguator(
     let sameRank = 0
     let sameFile = 0
     samePieceAndDestinationMoves.forEach((move) => {
-        if (rank(move.from) === rank(from)) {
+        if (getRank(move.from) === getRank(from)) {
             sameRank++
         }
 
-        if (file(move.from) === file(from)) {
+        if (getFile(move.from) === getFile(from)) {
             sameFile++
         }
     })

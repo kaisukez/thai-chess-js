@@ -1,4 +1,4 @@
-import { algebraic, ascii, clone, compose, file, pipe, rank, swapColor } from "./utils"
+import { algebraic, printBoard, clone, compose, getFile, pipe, getRank, swapColor } from "./utils"
 import { Color } from "./constants/Piece"
 
 describe("utils", () => {
@@ -16,7 +16,7 @@ describe("utils", () => {
         it("should get rank number from square index", () => {
             for (let i = 0; i < 128; i++) {
                 if (!(i & 0x88)) {
-                    expect(rank(i)).toBe(Math.floor(i / 16))
+                    expect(getRank(i)).toBe(Math.floor(i / 16))
                 }
             }
         })
@@ -27,7 +27,7 @@ describe("utils", () => {
         it("should get file number from square index", () => {
             for (let i = 0; i < 128; i++) {
                 if (!(i & 0x88)) {
-                    expect(file(i)).toBe(i % 16)
+                    expect(getFile(i)).toBe(i % 16)
                 }
             }
         })

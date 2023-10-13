@@ -10,15 +10,11 @@ export const swapColor = R.cond([
     [R.equals(Color.BLACK), R.always(Color.WHITE)],
 ])
 
-export function rank(square: SquareIndex) {
-    return square >> 4
-}
+export const getRank = (square: SquareIndex) => square >> 4
 
-export function file(square: SquareIndex) {
-    return square & 15
-}
+export const getFile = (square: SquareIndex) => square & 15
 
-export function squareColor(square: SquareIndex) {
+export function getSquareColor(square: SquareIndex) {
     const _file = square & 1
     const _rank = (square & 16) >> 4
 
@@ -34,8 +30,8 @@ export type AlgebraicOptions = {
 export function algebraic(square: SquareIndex, optional: AlgebraicOptions = {}) {
     const { thai } = optional
 
-    const _file = file(square)
-    const _rank = rank(square)
+    const _file = getFile(square)
+    const _rank = getRank(square)
 
     let fileSymbols = "abcdefgh"
     let rankSymbols = "12345678"
@@ -46,8 +42,8 @@ export function algebraic(square: SquareIndex, optional: AlgebraicOptions = {}) 
     return fileSymbols[_file] + rankSymbols[_rank]
 }
 
-export function ascii(boardState: State["boardState"]) {
-    const end = (iterator: number) => iterator === SquareIndex.h1
+export function printBoard(boardState: State["boardState"]) {
+    const isEnd = (iterator: number) => iterator === SquareIndex.h1
 
     let s = "     +------------------------+\n"
     let i = SquareIndex.a8
@@ -58,9 +54,9 @@ export function ascii(boardState: State["boardState"]) {
 
     while (true) {
         /* display the rank */
-        if (file(i) === FILE_A) {
+        if (getFile(i) === FILE_A) {
             // s += ' ' + (parseInt(rank(i), 10) + 1) + ' |'
-            s += " " + (rank(i) + 1) + " |"
+            s += " " + (getRank(i) + 1) + " |"
         }
 
         /* empty piece */
@@ -78,7 +74,7 @@ export function ascii(boardState: State["boardState"]) {
 
         if ((i + 1) & 0x88) {
             s += "|\n"
-            if (end(i)) {
+            if (isEnd(i)) {
                 break
             }
             i -= (SquareIndex.h8 - SquareIndex.a7)

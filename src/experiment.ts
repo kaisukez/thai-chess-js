@@ -1,6 +1,4 @@
-
-
-import { ascii } from "./utils"
+import { printBoard } from "./utils"
 
 import { gameOver, generateLegalMoves, move, moveToSan, nextMove, undoMove } from "./move"
 
@@ -42,7 +40,7 @@ function runUntilGameFinished(state?: State) {
         state = move(state, bestMove!)
         i++
 
-        console.log(ascii(state.boardState))
+        console.log(printBoard(state.boardState))
     }
     console.log("game over!")
 }
@@ -71,43 +69,43 @@ runUntilGameFinished()
 
 function testCount() {
     const state = importFen("T6T/8/5K2/8/2k5/8/8/t6t w 25")
-    console.log(ascii(state.boardState))
+    console.log(printBoard(state.boardState))
 
     const state2 = move(state, "Ke6", { startBoardPowerCountdown: true })
-    console.log(ascii(state2.boardState))
+    console.log(printBoard(state2.boardState))
     console.log("2", state2.countdown)
 
     const state3 = move(state2, "Kd4")
-    console.log(ascii(state3.boardState))
+    console.log(printBoard(state3.boardState))
     console.log("3", state3.countdown)
 
     const state4 = move(state3, "Kf7")
-    console.log(ascii(state4.boardState))
+    console.log(printBoard(state4.boardState))
     console.log("4", state4.countdown)
 
 
     const state3undo = undoMove(state4)
-    console.log(ascii(state3undo.boardState))
+    console.log(printBoard(state3undo.boardState))
     console.log("3 undo", state3undo.countdown)
 
     const state2undo = undoMove(state3undo)
-    console.log(ascii(state2undo.boardState))
+    console.log(printBoard(state2undo.boardState))
     console.log("2 undo", state2undo.countdown)
 
     const stateundo = undoMove(state2undo)
-    console.log(ascii(stateundo.boardState))
+    console.log(printBoard(stateundo.boardState))
     console.log("1 undo", stateundo.countdown)
 
     const state2next = nextMove(stateundo)
-    console.log(ascii(state2next.boardState))
+    console.log(printBoard(state2next.boardState))
     console.log("2 next", state2next.countdown)
 
     const state3next = nextMove(state2next)
-    console.log(ascii(state3next.boardState))
+    console.log(printBoard(state3next.boardState))
     console.log("2 next", state3next)
 
     const state4next = nextMove(state3next)
-    console.log(ascii(state4next.boardState))
+    console.log(printBoard(state4next.boardState))
     console.log("2 next", state4next.countdown)
 
 
@@ -122,15 +120,15 @@ function testCount() {
     }
     state4next.countdown.countTo = 8
     const state5 = move(state4next, "Ke4")
-    console.log(ascii(state5.boardState))
+    console.log(printBoard(state5.boardState))
     console.log(state5.countdown)
 
     const state6 = move(state5, "Kg6")
-    console.log(ascii(state6.boardState))
+    console.log(printBoard(state6.boardState))
     console.log(state6.countdown)
 
     const state7 = move(state6, "Kf4")
-    console.log(ascii(state7.boardState))
+    console.log(printBoard(state7.boardState))
     console.log(state7.countdown)
 
     console.log("gameover", gameOver(state5))
