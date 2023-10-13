@@ -890,6 +890,7 @@ describe("state", () => {
             piecePositions,
             countdown: null,
             countdownHistory: [],
+            fenOccurrence: {},
         }
 
         test("put empty square", () => {
@@ -954,6 +955,7 @@ describe("state", () => {
             piecePositions,
             countdown: null,
             countdownHistory: [],
+            fenOccurrence: {},
         }
 
         test("remove empty square", () => {
@@ -1056,6 +1058,9 @@ describe("state", () => {
                     [KHUN]: [e8],
                 },
             },
+            fenOccurrence: {
+                [fen]: 1,
+            },
         }
 
         test("should import fen to state correctly", () => {
@@ -1072,40 +1077,6 @@ describe("state", () => {
 
         test("should throw error when import fen", () => {
             const tests = [
-                {
-                    fen: null,
-                    errorCode: "WRONG_INPUT_TYPE",
-                },
-                {
-                    fen: undefined,
-                    errorCode: "WRONG_INPUT_TYPE",
-                },
-                {
-                    fen: {},
-                    errorCode: "WRONG_INPUT_TYPE",
-                },
-                {
-                    fen: [],
-                    errorCode: "WRONG_INPUT_TYPE",
-                },
-                {
-                    fen: new String("rmtektmr/8/bbbbbbbb/8/8/BBBBBBBB/8/RMTKETMR w 1"),
-                    errorCode: "WRONG_INPUT_TYPE",
-                },
-                {
-                    fen: 123,
-                    errorCode: "WRONG_INPUT_TYPE",
-                },
-                {
-                    fen: new Number("123"),
-                    errorCode: "WRONG_INPUT_TYPE",
-                },
-                {
-                    fen: new Set([1, 2, 3]),
-                    errorCode: "WRONG_INPUT_TYPE",
-                },
-
-
                 {
                     fen: "rmtektmr/8/bbbbbbbb/8/8/BBBBBBBB/8/RMTKETMR w 1 -",
                     errorCode: "WRONG_NUMBER_OF_INPUTS",

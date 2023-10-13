@@ -18,15 +18,6 @@ export type ExtractInfoFromFenOutput = {
 };
 
 export function extractInfoFromFen(fen: string): ExtractInfoFromFenOutput {
-    if (typeof fen !== "string") {
-        throw {
-            code: "WRONG_INPUT_TYPE",
-            message: "fen must be string",
-            field: "fen",
-            fieldNumber: -1,
-        }
-    }
-
     const length = fen.split(" ").length
     if (length !== 3 && length !== 8) {
         throw {
