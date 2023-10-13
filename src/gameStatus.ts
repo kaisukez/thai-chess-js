@@ -12,11 +12,11 @@ import { generateLegalMoves } from "./move"
  * canThisColorAttackThisSquare(BLACK, SQUARES.e7)
  *
  */
-export function canThisColorAttackThisSquare(
+export const canThisColorAttackThisSquare = (
     boardState: State["boardState"],
     color: Color,
     targetSquare: SquareIndex,
-) {
+) => {
     for (
         let fromIndex = SquareIndex.a1;
         fromIndex <= SquareIndex.h8;
@@ -90,16 +90,17 @@ export const inThreefoldRepetition = (state: State): boolean => {
     return R.any(R.gte(R.__, 3), R.values(occurrences))
 }
 
-export const inDraw = R.anyPass([
-    inStalemate,
-    isFinishedCounting,
-    insufficientMaterial,
-    inThreefoldRepetition,
-])
+export const isFinishedCounting = (state: State): boolean => {
+    const { countdown, activeColor } = state
 
-export const isGameOver = R.either(inDraw, inCheckmate)
+    return Boolean(
+        countdown &&
+        countdown.countColor === activeColor &&
+        countdown.count >= countdown.countTo,
+    )
+}
 
-export function insufficientMaterial(state: State): boolean {
+export const inInsufficientMaterial = (state: State): boolean => {
     const pieceCount = countPiece(state.piecePositions)
 
     // came from answer in facebook group from the question I asked
@@ -113,12 +114,11 @@ export function insufficientMaterial(state: State): boolean {
     )
 }
 
-export function isFinishedCounting(state: State) {
-    const { countdown, activeColor } = state
+export const inDraw = R.anyPass([
+    inStalemate,
+    isFinishedCounting,
+    inInsufficientMaterial,
+    inThreefoldRepetition,
+])
 
-    return Boolean(
-        countdown &&
-        countdown.countColor === activeColor &&
-        countdown.count >= countdown.countTo,
-    )
-}
+export const isGameOver = R.either(inDraw, inCheckmate)
