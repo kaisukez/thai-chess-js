@@ -552,7 +552,7 @@ export function importFen(fen: string): State {
     const fenInfo = extractInfoFromFen(fen)
     const boardState = getBoardStateFromBoardString(fenInfo.boardString)
     const piecePositions = getPiecePositions(boardState)
-    const state = {
+    const state: State = {
         activeColor: toEnum(Color, fenInfo.activeColor),
         moveNumber: parseInt(fenInfo.moveNumber, 10),
         boardState,
@@ -567,8 +567,9 @@ export function importFen(fen: string): State {
             fenInfo.countTo,
         ),
         countdownHistory: [],
+        fenOccurrence: {},
     }
-
+    state.fenOccurrence[fen] = 1
     return state
 }
 

@@ -111,20 +111,7 @@ export function gameOver(state: State) {
 }
 
 export function inThreefoldRepetition(state: State) {
-    const positions: Record<string, number> = {}
-    let currentState = state
-
-    while (currentState && currentState.history && currentState.history.length) {
-        const fen = exportFen(currentState)
-        positions[fen] = fen in positions ? positions[fen] + 1 : 1
-        if (positions[fen] >= 3) {
-            return true
-        }
-
-        currentState = undoMove(currentState)
-    }
-
-    return false
+    return state.fenOccurrence[state.fenOccurrence.length - 1] >= 3
 }
 
 export function insufficientMaterial(state: State): boolean {
@@ -292,20 +279,20 @@ export function step(state: State) {
     return stepInplace(newState)
 }
 
-export function stepBackInplace(state: State) {
-    if (state.activeColor === Color.WHITE) {
-        state.moveNumber--
-    }
+// export function stepBackInplace(state: State) {
+//     if (state.activeColor === Color.WHITE) {
+//         state.moveNumber--
+//     }
+//
+//     state.activeColor = swapColor(state.activeColor)
+//
+//     return state
+// }
 
-    state.activeColor = swapColor(state.activeColor)
-
-    return state
-}
-
-export function stepBack(state: State) {
-    const newState = clone(state)
-    return stepBackInplace(newState)
-}
+// export function stepBack(state: State) {
+//     const newState = clone(state)
+//     return stepBackInplace(newState)
+// }
 
 export type CountdownFlag = {
     startPiecePowerCountdown?: boolean;
@@ -437,22 +424,22 @@ export function stepCountdown(state: State, flags: StepCountdownFlags = {}) {
     return newState
 }
 
-export function stepBackCountdown(state: State) {
-    const newState = clone(state)
-
-    const { countdown, activeColor } = newState
-
-    if (countdown && countdown.countColor === activeColor) {
-        const { count, countFrom } = countdown
-        if (count > countFrom) {
-            countdown.count--
-        } else {
-            newState.countdown = null
-        }
-    }
-
-    return newState
-}
+// export function stepBackCountdown(state: State) {
+//     const newState = clone(state)
+//
+//     const { countdown, activeColor } = newState
+//
+//     if (countdown && countdown.countColor === activeColor) {
+//         const { count, countFrom } = countdown
+//         if (count > countFrom) {
+//             countdown.count--
+//         } else {
+//             newState.countdown = null
+//         }
+//     }
+//
+//     return newState
+// }
 
 export function makeMove(
     state: State,
@@ -496,6 +483,10 @@ export function makeMove(
     //     newState.future = []
     // }
 
+    const fen = exportFen(newState)
+
+    newState.fenOccurrence[fen] = newState.fenOccurrence[fen] ? newState.fenOccurrence[fen] + 1 : 1
+
     return newState
 }
 
@@ -513,34 +504,34 @@ export function nextMove(state: State) {
     return newState
 }
 
-export function undoMove(state: State) {
-    if (!state.history || (state.history && state.history.length === 0)) {
-        throw { code: "NO_MOVE_HISTORY" }
-    }
-
-    let newState = clone(state)
-    newState = stepBack(newState)
-    newState = stepBackCountdown(newState)
-    if (!newState.history || !newState.future) {
-        throw { code: "NO_MOVE_HISTORY" }
-    }
-    const lastMove = newState.history.pop()! // it's not undefined because we've check length of the history earlier
-    newState.future.unshift(lastMove)
-
-    const { piece, from, to, flags, captured } = lastMove
-    const { boardState, activeColor } = newState
-    boardState[from] = boardState[to]
-    // boardState[from].type = piece // undo promotion
-    boardState[from]![1] = piece // undo promotion
-    boardState[to] = null
-
-    if (flags & BITS.CAPTURE && captured) {
-        // boardState[to] = { piece: captured, color: swapColor(activeColor) }
-        boardState[to] = [swapColor(activeColor), captured]
-    }
-
-    return newState
-}
+// export function undoMove(state: State) {
+//     if (!state.history || (state.history && state.history.length === 0)) {
+//         throw { code: "NO_MOVE_HISTORY" }
+//     }
+//
+//     let newState = clone(state)
+//     newState = stepBack(newState)
+//     newState = stepBackCountdown(newState)
+//     if (!newState.history || !newState.future) {
+//         throw { code: "NO_MOVE_HISTORY" }
+//     }
+//     const lastMove = newState.history.pop()! // it's not undefined because we've check length of the history earlier
+//     newState.future.unshift(lastMove)
+//
+//     const { piece, from, to, flags, captured } = lastMove
+//     const { boardState, activeColor } = newState
+//     boardState[from] = boardState[to]
+//     // boardState[from].type = piece // undo promotion
+//     boardState[from]![1] = piece // undo promotion
+//     boardState[to] = null
+//
+//     if (flags & BITS.CAPTURE && captured) {
+//         // boardState[to] = { piece: captured, color: swapColor(activeColor) }
+//         boardState[to] = [swapColor(activeColor), captured]
+//     }
+//
+//     return newState
+// }
 
 export type GenerateMovesForOneSquareOptions = {
     forColor?: Color;
