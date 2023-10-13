@@ -1,48 +1,14 @@
+import * as R from "ramda"
+
 import { State } from "./types"
 import { FILE_A, SquareIndex } from "./constants/Board"
-import {
-    BIA_ATTACK_OFFSETS, BIA_MOVE_OFFSETS, Color,
-    Piece,
-    PIECE_ATTACK_OFFSETS,
-    PIECE_MOVE_OFFSETS,
-    THON_ATTACK_OFFSETS,
-    THON_MOVE_OFFSETS,
-} from "./constants/Piece"
+import { Color } from "./constants/Piece"
 
 
-export function swapColor(color: Color) {
-    return color === Color.WHITE ? Color.BLACK : Color.WHITE
-}
-
-export function getAttackOffsets(color: Color, piece: Piece) {
-    // piece = piece.toLowerCase()
-
-    if (piece === Piece.BIA) {
-        return BIA_ATTACK_OFFSETS[color]
-    }
-
-    if (piece === Piece.THON) {
-        return THON_ATTACK_OFFSETS[color]
-    }
-
-    return PIECE_ATTACK_OFFSETS[piece]
-}
-
-
-export function getMoveOffsets(color: Color, piece: Piece) {
-    // piece = piece.toLowerCase()
-
-    if (piece === Piece.BIA) {
-        return BIA_MOVE_OFFSETS[color]
-    }
-
-    if (piece === Piece.THON) {
-        return THON_MOVE_OFFSETS[color]
-    }
-
-    return PIECE_MOVE_OFFSETS[piece]
-}
-
+export const swapColor = R.cond([
+    [R.equals(Color.WHITE), R.always(Color.BLACK)],
+    [R.equals(Color.BLACK), R.always(Color.WHITE)],
+])
 
 export function rank(square: SquareIndex) {
     return square >> 4

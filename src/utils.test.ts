@@ -1,52 +1,16 @@
-import { algebraic, ascii, clone, compose, file, getAttackOffsets, pipe, rank, swapColor } from "./utils"
-import { BIA_ATTACK_OFFSETS, Color, Piece, PIECE_ATTACK_OFFSETS, THON_ATTACK_OFFSETS } from "./constants/Piece"
-
-
-const { WHITE, BLACK } = Color
-const {
-    BIA,
-    FLIPPED_BIA,
-    MA,
-    THON,
-    MET,
-    RUA,
-    KHUN,
-} = Piece
+import { algebraic, ascii, clone, compose, file, pipe, rank, swapColor } from "./utils"
+import { Color } from "./constants/Piece"
 
 describe("utils", () => {
     describe("swapColor", () => {
-        it("should swap color form WHITE to BLACK", () => {
-            expect(swapColor(WHITE)).toBe(BLACK)
-        })
-        it("should swap color form BLACK to WHITE", () => {
-            expect(swapColor(BLACK)).toBe(WHITE)
-        })
-    })
-
-
-    describe("getAttackOffsets", () => {
         it.each`
-            color    | piece          | expected
-            ${WHITE} | ${BIA}         | ${BIA_ATTACK_OFFSETS[WHITE]}
-            ${WHITE} | ${FLIPPED_BIA} | ${PIECE_ATTACK_OFFSETS[FLIPPED_BIA]}
-            ${WHITE} | ${MA}          | ${PIECE_ATTACK_OFFSETS[MA]}
-            ${WHITE} | ${THON}        | ${THON_ATTACK_OFFSETS[WHITE]}
-            ${WHITE} | ${MET}         | ${PIECE_ATTACK_OFFSETS[MET]}
-            ${WHITE} | ${RUA}         | ${PIECE_ATTACK_OFFSETS[RUA]}
-            ${WHITE} | ${KHUN}        | ${PIECE_ATTACK_OFFSETS[KHUN]}
-
-            ${BLACK} | ${BIA}         | ${BIA_ATTACK_OFFSETS[BLACK]}
-            ${BLACK} | ${FLIPPED_BIA} | ${PIECE_ATTACK_OFFSETS[FLIPPED_BIA]}
-            ${BLACK} | ${MA}          | ${PIECE_ATTACK_OFFSETS[MA]}
-            ${BLACK} | ${THON}        | ${THON_ATTACK_OFFSETS[BLACK]}
-            ${BLACK} | ${MET}         | ${PIECE_ATTACK_OFFSETS[MET]}
-            ${BLACK} | ${RUA}         | ${PIECE_ATTACK_OFFSETS[RUA]}
-            ${BLACK} | ${KHUN}        | ${PIECE_ATTACK_OFFSETS[KHUN]}
-        `("should get attack offset correctly when color = $color and piece = $piece", ({ color, piece, expected }) => {
-            expect(getAttackOffsets(color, piece)).toEqual(expected)
+            currentColor   | oppositeColor
+            ${Color.WHITE} | ${Color.BLACK}
+            ${Color.BLACK} | ${Color.WHITE}
+        `("should swap color from $currentColor to $oppositeColor", ({ currentColor, oppositeColor }) => {
+            expect(swapColor(currentColor)).toBe(oppositeColor)
         })
     })
-
 
     describe("rank", () => {
         it("should get rank number from square index", () => {
