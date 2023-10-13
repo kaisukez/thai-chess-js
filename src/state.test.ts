@@ -585,25 +585,28 @@ describe("state", () => {
 
 
     describe("updatePiecePositionDictionary", () => {
-        const piecePositions = {
-            [WHITE]: {
-                [BIA]: [f5, g4],
-                [FLIPPED_BIA]: [],
-                [MA]: [],
-                [THON]: [],
-                [MET]: [],
-                [RUA]: [],
-                [KHUN]: [d1],
-            },
-            [BLACK]: {
-                [BIA]: [e6, h5],
-                [FLIPPED_BIA]: [],
-                [MA]: [],
-                [THON]: [],
-                [MET]: [],
-                [RUA]: [],
-                [KHUN]: [e8],
-            },
+        const setup = () => {
+            const piecePositions = {
+                [WHITE]: {
+                    [BIA]: [f5, g4],
+                    [FLIPPED_BIA]: [],
+                    [MA]: [],
+                    [THON]: [],
+                    [MET]: [],
+                    [RUA]: [],
+                    [KHUN]: [d1],
+                },
+                [BLACK]: {
+                    [BIA]: [e6, h5],
+                    [FLIPPED_BIA]: [],
+                    [MA]: [],
+                    [THON]: [],
+                    [MET]: [],
+                    [RUA]: [],
+                    [KHUN]: [e8],
+                },
+            }
+            return { piecePositions }
         }
 
         test("should move correctly", () => {
@@ -614,8 +617,9 @@ describe("state", () => {
                 to: g5,
                 flags: 0,
             }
-            const result = updatePiecePositionDictionary(piecePositions, moveObject)
-            expect(result[WHITE][BIA].slice().sort()).toEqual([f5, g5].sort())
+            const { piecePositions } = setup()
+            updatePiecePositionDictionary(piecePositions, moveObject)
+            expect(piecePositions[WHITE][BIA].sort()).toEqual([f5, g5].sort())
         })
 
         test("should capture correctly", () => {
@@ -627,9 +631,10 @@ describe("state", () => {
                 flags: BITS.CAPTURE,
                 captured: BIA,
             }
-            const result = updatePiecePositionDictionary(piecePositions, moveObject)
-            expect(result[BLACK][BIA].slice().sort()).toEqual([e6, g4].sort())
-            expect(result[WHITE][BIA].slice().sort()).toEqual([f5].sort())
+            const { piecePositions } = setup()
+            updatePiecePositionDictionary(piecePositions, moveObject)
+            expect(piecePositions[BLACK][BIA].sort()).toEqual([e6, g4].sort())
+            expect(piecePositions[WHITE][BIA].sort()).toEqual([f5].sort())
         })
 
         test("should promote correctly", () => {
@@ -641,9 +646,10 @@ describe("state", () => {
                 flags: BITS.PROMOTION,
                 promotion: FLIPPED_BIA,
             }
-            const result = updatePiecePositionDictionary(piecePositions, moveObject)
-            expect(result[WHITE][BIA].slice().sort()).toEqual([g4].sort())
-            expect(result[WHITE][FLIPPED_BIA].slice().sort()).toEqual([f6].sort())
+            const { piecePositions } = setup()
+            updatePiecePositionDictionary(piecePositions, moveObject)
+            expect(piecePositions[WHITE][BIA].sort()).toEqual([g4].sort())
+            expect(piecePositions[WHITE][FLIPPED_BIA].sort()).toEqual([f6].sort())
         })
 
         test("should capture and promote at the same time correctly", () => {
@@ -656,15 +662,17 @@ describe("state", () => {
                 captured: BIA,
                 promotion: FLIPPED_BIA,
             }
-            const result = updatePiecePositionDictionary(piecePositions, moveObject)
-            expect(result[WHITE][BIA].slice().sort()).toEqual([g4].sort())
-            expect(result[WHITE][FLIPPED_BIA].slice().sort()).toEqual([e6].sort())
-            expect(result[BLACK][BIA].slice().sort()).toEqual([h5].sort())
+            const { piecePositions } = setup()
+            updatePiecePositionDictionary(piecePositions, moveObject)
+            expect(piecePositions[WHITE][BIA].sort()).toEqual([g4].sort())
+            expect(piecePositions[WHITE][FLIPPED_BIA].sort()).toEqual([e6].sort())
+            expect(piecePositions[BLACK][BIA].sort()).toEqual([h5].sort())
         })
 
         describe("should throw error if not enough input", () => {
             test("not enough color", () => {
                 expect.assertions(3)
+                const { piecePositions } = setup()
                 try {
                     updatePiecePositionDictionary(piecePositions, <MoveObject>{
                         piece: BIA,
@@ -680,6 +688,7 @@ describe("state", () => {
 
             test("not enough piece", () => {
                 expect.assertions(3)
+                const { piecePositions } = setup()
                 try {
                     updatePiecePositionDictionary(piecePositions, <MoveObject>{
                         color: WHITE,
@@ -695,6 +704,7 @@ describe("state", () => {
 
             test("not enough from", () => {
                 expect.assertions(3)
+                const { piecePositions } = setup()
                 try {
                     updatePiecePositionDictionary(piecePositions, <MoveObject>{
                         piece: BIA,
@@ -710,6 +720,7 @@ describe("state", () => {
 
             test("not enough to", () => {
                 expect.assertions(3)
+                const { piecePositions } = setup()
                 try {
                     updatePiecePositionDictionary(piecePositions, <MoveObject>{
                         piece: BIA,
@@ -725,6 +736,7 @@ describe("state", () => {
 
             test("not enough everything", () => {
                 expect.assertions(3)
+                const { piecePositions } = setup()
                 try {
                     updatePiecePositionDictionary(piecePositions, <MoveObject>{})
                 } catch (error: any) {
@@ -736,6 +748,7 @@ describe("state", () => {
 
             test("if there's promotion flag then throw error if no 'promotion' exists in moveObject", () => {
                 expect.assertions(3)
+                const { piecePositions } = setup()
                 try {
                     updatePiecePositionDictionary(piecePositions, {
                         piece: BIA,
@@ -753,6 +766,7 @@ describe("state", () => {
 
             test("if there's capture flag then throw error if no 'captured' exists in moveObject", () => {
                 expect.assertions(3)
+                const { piecePositions } = setup()
                 try {
                     updatePiecePositionDictionary(piecePositions, {
                         piece: BIA,
@@ -772,125 +786,126 @@ describe("state", () => {
 
 
     describe("removePiecePositionIfExists", () => {
-        const piecePositions = {
-            [WHITE]: {
-                [BIA]: [f5, g4],
-                [FLIPPED_BIA]: [],
-                [MA]: [],
-                [THON]: [],
-                [MET]: [],
-                [RUA]: [],
-                [KHUN]: [d1],
-            },
-            [BLACK]: {
-                [BIA]: [e6, h5],
-                [FLIPPED_BIA]: [],
-                [MA]: [],
-                [THON]: [],
-                [MET]: [],
-                [RUA]: [],
-                [KHUN]: [e8],
-            },
-        }
+        const setup = () => {
+            const piecePositions = {
+                [WHITE]: {
+                    [BIA]: [f5, g4],
+                    [FLIPPED_BIA]: [],
+                    [MA]: [],
+                    [THON]: [],
+                    [MET]: [],
+                    [RUA]: [],
+                    [KHUN]: [d1],
+                },
+                [BLACK]: {
+                    [BIA]: [e6, h5],
+                    [FLIPPED_BIA]: [],
+                    [MA]: [],
+                    [THON]: [],
+                    [MET]: [],
+                    [RUA]: [],
+                    [KHUN]: [e8],
+                },
+            }
 
-        const boardState = Array(128).fill(null)
-        boardState[f5] = [WHITE, BIA]
-        boardState[g4] = [WHITE, BIA]
-        boardState[d1] = [WHITE, KHUN]
-        boardState[e6] = [BLACK, BIA]
-        boardState[h5] = [BLACK, BIA]
-        boardState[e8] = [BLACK, KHUN]
+            const boardState = Array(128).fill(null)
+            boardState[f5] = [WHITE, BIA]
+            boardState[g4] = [WHITE, BIA]
+            boardState[d1] = [WHITE, KHUN]
+            boardState[e6] = [BLACK, BIA]
+            boardState[h5] = [BLACK, BIA]
+            boardState[e8] = [BLACK, KHUN]
+            return { piecePositions, boardState }
+        }
 
         test("remove piece f5 correctly", () => {
             const square = f5
-            const result = removePiecePositionIfExists(piecePositions, boardState, square)
-            const newPiecePositions = clone(piecePositions)
-            newPiecePositions[WHITE][BIA] = newPiecePositions[WHITE][BIA].filter(p => p !== square)
-            expect(result).toEqual(newPiecePositions)
+            const { piecePositions, boardState } = setup()
+            removePiecePositionIfExists(piecePositions, boardState, square)
+            expect(piecePositions[WHITE][BIA]).not.toContain(square)
         })
 
         test("remove piece g4 correctly", () => {
             const square = g4
-            const result = removePiecePositionIfExists(piecePositions, boardState, square)
-            const newPiecePositions = clone(piecePositions)
-            newPiecePositions[WHITE][BIA] = newPiecePositions[WHITE][BIA].filter(p => p !== square)
-            expect(result).toEqual(newPiecePositions)
+            const { piecePositions, boardState } = setup()
+            removePiecePositionIfExists(piecePositions, boardState, square)
+            expect(piecePositions[WHITE][BIA]).not.toContain(square)
         })
 
         test("remove piece d1 correctly", () => {
             const square = d1
-            const result = removePiecePositionIfExists(piecePositions, boardState, square)
-            const newPiecePositions = clone(piecePositions)
-            newPiecePositions[WHITE][KHUN] = newPiecePositions[WHITE][KHUN].filter(p => p !== square)
-            expect(result).toEqual(newPiecePositions)
+            const { piecePositions, boardState } = setup()
+            removePiecePositionIfExists(piecePositions, boardState, square)
+            expect(piecePositions[WHITE][KHUN]).not.toContain(square)
         })
 
         test("remove piece e6 correctly", () => {
             const square = e6
-            const result = removePiecePositionIfExists(piecePositions, boardState, square)
-            const newPiecePositions = clone(piecePositions)
-            newPiecePositions[BLACK][BIA] = newPiecePositions[BLACK][BIA].filter(p => p !== square)
-            expect(result).toEqual(newPiecePositions)
+            const { piecePositions, boardState } = setup()
+            removePiecePositionIfExists(piecePositions, boardState, square)
+            expect(piecePositions[BLACK][BIA]).not.toContain(square)
         })
 
         test("remove piece h5 correctly", () => {
             const square = h5
-            const result = removePiecePositionIfExists(piecePositions, boardState, square)
-            const newPiecePositions = clone(piecePositions)
-            newPiecePositions[BLACK][BIA] = newPiecePositions[BLACK][BIA].filter(p => p !== square)
-            expect(result).toEqual(newPiecePositions)
+            const { piecePositions, boardState } = setup()
+            removePiecePositionIfExists(piecePositions, boardState, square)
+            expect(piecePositions[BLACK][BIA]).not.toContain(square)
         })
 
         test("remove piece e8 correctly", () => {
             const square = e8
-            const result = removePiecePositionIfExists(piecePositions, boardState, square)
-            const newPiecePositions = clone(piecePositions)
-            newPiecePositions[BLACK][KHUN] = newPiecePositions[BLACK][KHUN].filter(p => p !== square)
-            expect(result).toEqual(newPiecePositions)
+            const { piecePositions, boardState } = setup()
+            removePiecePositionIfExists(piecePositions, boardState, square)
+            expect(piecePositions[BLACK][KHUN]).not.toContain(square)
         })
     })
 
 
     describe("put", () => {
-        const piecePositions = {
-            [WHITE]: {
-                [BIA]: [f5, g4],
-                [FLIPPED_BIA]: [],
-                [MA]: [],
-                [THON]: [],
-                [MET]: [],
-                [RUA]: [],
-                [KHUN]: [d1],
-            },
-            [BLACK]: {
-                [BIA]: [e6, h5],
-                [FLIPPED_BIA]: [],
-                [MA]: [],
-                [THON]: [],
-                [MET]: [],
-                [RUA]: [],
-                [KHUN]: [e8],
-            },
-        }
+        const setup = () => {
+            const piecePositions = {
+                [WHITE]: {
+                    [BIA]: [f5, g4],
+                    [FLIPPED_BIA]: [],
+                    [MA]: [],
+                    [THON]: [],
+                    [MET]: [],
+                    [RUA]: [],
+                    [KHUN]: [d1],
+                },
+                [BLACK]: {
+                    [BIA]: [e6, h5],
+                    [FLIPPED_BIA]: [],
+                    [MA]: [],
+                    [THON]: [],
+                    [MET]: [],
+                    [RUA]: [],
+                    [KHUN]: [e8],
+                },
+            }
 
-        const boardState = Array(128).fill(null)
-        boardState[f5] = [WHITE, BIA]
-        boardState[g4] = [WHITE, BIA]
-        boardState[d1] = [WHITE, KHUN]
-        boardState[e6] = [BLACK, BIA]
-        boardState[h5] = [BLACK, BIA]
-        boardState[e8] = [BLACK, KHUN]
+            const boardState = Array(128).fill(null)
+            boardState[f5] = [WHITE, BIA]
+            boardState[g4] = [WHITE, BIA]
+            boardState[d1] = [WHITE, KHUN]
+            boardState[e6] = [BLACK, BIA]
+            boardState[h5] = [BLACK, BIA]
+            boardState[e8] = [BLACK, KHUN]
 
-        const state: State = {
-            activeColor: WHITE,
-            moveNumber: 1,
-            history: [],
-            future: [],
-            boardState,
-            piecePositions,
-            countdown: null,
-            countdownHistory: [],
-            fenOccurrence: {},
+            const state: State = {
+                activeColor: WHITE,
+                moveNumber: 1,
+                history: [],
+                future: [],
+                boardState,
+                piecePositions,
+                countdown: null,
+                countdownHistory: [],
+                fenOccurrence: {},
+            }
+
+            return { state }
         }
 
         test("put empty square", () => {
@@ -898,9 +913,10 @@ describe("state", () => {
             const piece = RUA
             const square = f7
 
-            const newState = put(state, color, piece, square)
-            expect(newState.boardState[square]).toEqual([color, piece])
-            expect(newState.piecePositions[color][piece]).toContain(square)
+            const { state } = setup()
+            put(state, color, piece, square)
+            expect(state.boardState[square]).toEqual([color, piece])
+            expect(state.piecePositions[color][piece]).toContain(square)
         })
 
         test("put non empty square", () => {
@@ -908,67 +924,72 @@ describe("state", () => {
             const piece = MA
             const square = g4
 
-            const newState = put(state, color, piece, square)
-            expect(newState.boardState[square]).toEqual([color, piece])
-            expect(newState.piecePositions[color][piece]).toContain(square)
-            expect(newState.piecePositions[WHITE][BIA]).not.toContain(square)
+            const { state } = setup()
+            put(state, color, piece, square)
+            expect(state.piecePositions[color][piece]).toContain(square)
+            expect(state.piecePositions[WHITE][BIA]).not.toContain(square)
         })
     })
 
 
     describe("remove", () => {
-        const piecePositions = {
-            [WHITE]: {
-                [BIA]: [f5, g4],
-                [FLIPPED_BIA]: [],
-                [MA]: [],
-                [THON]: [],
-                [MET]: [],
-                [RUA]: [],
-                [KHUN]: [d1],
-            },
-            [BLACK]: {
-                [BIA]: [e6, h5],
-                [FLIPPED_BIA]: [],
-                [MA]: [],
-                [THON]: [],
-                [MET]: [],
-                [RUA]: [],
-                [KHUN]: [e8],
-            },
-        }
+        const setup = () => {
+            const piecePositions = {
+                [WHITE]: {
+                    [BIA]: [f5, g4],
+                    [FLIPPED_BIA]: [],
+                    [MA]: [],
+                    [THON]: [],
+                    [MET]: [],
+                    [RUA]: [],
+                    [KHUN]: [d1],
+                },
+                [BLACK]: {
+                    [BIA]: [e6, h5],
+                    [FLIPPED_BIA]: [],
+                    [MA]: [],
+                    [THON]: [],
+                    [MET]: [],
+                    [RUA]: [],
+                    [KHUN]: [e8],
+                },
+            }
 
-        const boardState = Array(128).fill(null)
-        boardState[f5] = [WHITE, BIA]
-        boardState[g4] = [WHITE, BIA]
-        boardState[d1] = [WHITE, KHUN]
-        boardState[e6] = [BLACK, BIA]
-        boardState[h5] = [BLACK, BIA]
-        boardState[e8] = [BLACK, KHUN]
+            const boardState = Array(128).fill(null)
+            boardState[f5] = [WHITE, BIA]
+            boardState[g4] = [WHITE, BIA]
+            boardState[d1] = [WHITE, KHUN]
+            boardState[e6] = [BLACK, BIA]
+            boardState[h5] = [BLACK, BIA]
+            boardState[e8] = [BLACK, KHUN]
 
-        const state: State = {
-            activeColor: WHITE,
-            moveNumber: 1,
-            history: [],
-            future: [],
-            boardState,
-            piecePositions,
-            countdown: null,
-            countdownHistory: [],
-            fenOccurrence: {},
+            const state: State = {
+                activeColor: WHITE,
+                moveNumber: 1,
+                history: [],
+                future: [],
+                boardState,
+                piecePositions,
+                countdown: null,
+                countdownHistory: [],
+                fenOccurrence: {},
+            }
+            return { state }
         }
 
         test("remove empty square", () => {
             const square = f7
-            const newState = remove(state, square)
-            expect(newState.boardState[square]).toBeFalsy()
+            const { state } = setup()
+            remove(state, square)
+            expect(state.boardState[square]).toBeFalsy()
         })
 
         test("remove non empty square", () => {
             const square = h5
-            const newState = remove(state, square)
-            expect(newState.boardState[square]).toBeFalsy()
-            expect(newState.piecePositions[BLACK][BIA]).not.toContain(square)
+            const { state } = setup()
+            remove(state, square)
+            expect(state.boardState[square]).toBeFalsy()
+            expect(state.piecePositions[BLACK][BIA]).not.toContain(square)
         })
     })
 

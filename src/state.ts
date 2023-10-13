@@ -389,7 +389,7 @@ export function countPiece(
  * updatePiecePositionDictionary(piecePositions, moveObject)
  * newPiecePosition = [5, 22, 49]
  */
-export function updatePiecePositionDictionaryInplace(
+export function updatePiecePositionDictionary(
     piecePositions: State["piecePositions"],
     moveObject: MoveObject,
 ) {
@@ -454,17 +454,15 @@ export function updatePiecePositionDictionaryInplace(
             }
         }
     }
-
-    return piecePositions
 }
 
-export function updatePiecePositionDictionary(
-    piecePositions: State["piecePositions"],
-    moveObject: MoveObject,
-) {
-    const newPiecePositions = clone(piecePositions)
-    return updatePiecePositionDictionaryInplace(newPiecePositions, moveObject)
-}
+// export function updatePiecePositionDictionary(
+//     piecePositions: State["piecePositions"],
+//     moveObject: MoveObject,
+// ) {
+//     const newPiecePositions = clone(piecePositions)
+//     return updatePiecePositionDictionaryInplace(newPiecePositions, moveObject)
+// }
 
 export function createCountdownObject(
     countColor?: string,
@@ -491,18 +489,14 @@ export function removePiecePositionIfExists(
     boardState: State["boardState"],
     squareIndex: SquareIndex,
 ) {
-    const newPiecePositions = clone(piecePositions)
-
     const squareData = boardState[squareIndex]
     if (squareData) {
         const [color, piece] = squareData
-        const toDeleteIndex = newPiecePositions[color][piece].indexOf(squareIndex)
+        const toDeleteIndex = piecePositions[color][piece].indexOf(squareIndex)
         if (toDeleteIndex !== -1) {
-            newPiecePositions[color][piece].splice(toDeleteIndex, 1)
+            piecePositions[color][piece].splice(toDeleteIndex, 1)
         }
     }
-
-    return newPiecePositions
 }
 
 export function put(
@@ -511,31 +505,25 @@ export function put(
     piece: Piece,
     squareIndex: SquareIndex,
 ) {
-    const newState = clone(state)
-
-    newState.piecePositions = removePiecePositionIfExists(
+    removePiecePositionIfExists(
         state.piecePositions,
         state.boardState,
         squareIndex,
     )
 
-    newState.boardState[squareIndex] = [color, piece]
-    if (!newState.piecePositions[color][piece].includes(squareIndex)) {
-        newState.piecePositions[color][piece].push(squareIndex)
+    state.boardState[squareIndex] = [color, piece]
+    if (!state.piecePositions[color][piece].includes(squareIndex)) {
+        state.piecePositions[color][piece].push(squareIndex)
     }
-
-    return newState
 }
 
 export function remove(state: State, squareIndex: SquareIndex) {
-    const newState = clone(state)
-    newState.piecePositions = removePiecePositionIfExists(
+    removePiecePositionIfExists(
         state.piecePositions,
         state.boardState,
         squareIndex,
     )
-    newState.boardState[squareIndex] = null
-    return newState
+    state.boardState[squareIndex] = null
 }
 
 export function importFen(fen: string): State {

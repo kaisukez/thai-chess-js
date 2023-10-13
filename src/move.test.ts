@@ -23,7 +23,11 @@ const {
 describe("move", () => {
     describe("canTh,isColorAttackThisSquare", () => {
         // TODO
-        const state = put(importFen(EMPTY_FEN), WHITE, BIA, c5)
+        const setup = () => {
+            const state = importFen(EMPTY_FEN)
+            put(state, WHITE, BIA, c5)
+            return { state }
+        }
 
         const tests = [
             {
@@ -154,7 +158,8 @@ describe("move", () => {
                     cannotAttack,
                 } = test
 
-                const newState = put(state, color, piece, square)
+                const { state } = setup()
+                put(state, color, piece, square)
 
                 // const newState = pipe(
                 //     put(state, color, piece, square),
@@ -162,15 +167,15 @@ describe("move", () => {
                 // )(state)
 
                 for (const square of canAttack) {
-                    const result = canThisColorAttackThisSquare(newState.boardState, color, square)
-                    if (result !== true) {
+                    const result = canThisColorAttackThisSquare(state.boardState, color, square)
+                    if (!result) {
                         console.log("this test didn't pass", test)
                     }
                     expect(result).toBe(true)
                 }
                 for (const square of cannotAttack) {
-                    const result = canThisColorAttackThisSquare(newState.boardState, color, square)
-                    if (result !== false) {
+                    const result = canThisColorAttackThisSquare(state.boardState, color, square)
+                    if (result) {
                         console.log("this test didn't pass", test)
                     }
                     expect(result).toBe(false)

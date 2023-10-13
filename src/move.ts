@@ -9,7 +9,7 @@ import {
 
 import { algebraic, clone, getFile, getRank, swapColor } from "./utils"
 
-import { countPiece, exportFen, updatePiecePositionDictionaryInplace } from "./state"
+import { countPiece, exportFen, updatePiecePositionDictionary } from "./state"
 
 import { Countdown, Move, MoveObject, State } from "./types"
 import { CountType, RANK_3, RANK_6, SquareIndex } from "./constants/Board"
@@ -473,7 +473,7 @@ export function makeMove(
     //     newState.piecePositions,
     //     moveObject
     // )
-    newState.piecePositions = updatePiecePositionDictionaryInplace(
+    updatePiecePositionDictionary(
         newState.piecePositions,
         moveObject,
     )
