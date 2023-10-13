@@ -4,6 +4,14 @@ import { State } from "./types"
 import { FILE_A, SquareIndex } from "./constants/Board"
 import { Color } from "./constants/Piece"
 
+// export function getSquareColor(square: SquareIndex) {
+//     const _file = square & 1
+//     const _rank = (square & 16) >> 4
+//
+//     const isWhite = _file ^ _rank
+//
+//     return isWhite ? Color.WHITE : Color.BLACK
+// }
 
 export const swapColor = R.cond([
     [R.equals(Color.WHITE), R.always(Color.BLACK)],
@@ -14,33 +22,31 @@ export const getRank = (square: SquareIndex) => square >> 4
 
 export const getFile = (square: SquareIndex) => square & 15
 
-export function getSquareColor(square: SquareIndex) {
-    const _file = square & 1
-    const _rank = (square & 16) >> 4
+const getFileSymbols = R.ifElse(
+    R.identity<boolean>,
+    R.always<string>("กขคงจฉชญ"),
+    R.always<string>("abcdefgh"),
+)
 
-    const isWhite = _file ^ _rank
+const getRankSymbols = R.always("12345678")
 
-    return isWhite ? Color.WHITE : Color.BLACK
-}
+const getFileSymbol = R.useWith(
+    R.prop<number, string>,
+    [
+        getFile,
+        getFileSymbols,
+    ],
+)
 
-export type AlgebraicOptions = {
-    thai?: boolean
-}
+const getRankSymbol = R.useWith(
+    R.prop<number, string>,
+    [
+        getRank,
+        getRankSymbols,
+    ],
+)
 
-export function algebraic(square: SquareIndex, optional: AlgebraicOptions = {}) {
-    const { thai } = optional
-
-    const _file = getFile(square)
-    const _rank = getRank(square)
-
-    let fileSymbols = "abcdefgh"
-    let rankSymbols = "12345678"
-    if (thai) {
-        fileSymbols = "กขคงจฉชญ"
-    }
-
-    return fileSymbols[_file] + rankSymbols[_rank]
-}
+export const getAlgebraic = (square: SquareIndex, isThai: boolean = false) => getFileSymbol(square, isThai) + getRankSymbol(square, isThai)
 
 export function printBoard(boardState: State["boardState"]) {
     const isEnd = (iterator: number) => iterator === SquareIndex.h1
@@ -87,48 +93,3 @@ export function printBoard(boardState: State["boardState"]) {
 
     return s
 }
-
-// https://stackoverflow.com/a/728694/10154216
-export function clone<T>(obj: T): T {
-    if (obj === null || typeof obj !== "object") {
-        return obj
-    }
-
-    if (Array.isArray(obj)) {
-        const copyArray: any[] = []
-        for (let i = 0, len = (obj as any[]).length; i < len; i++) {
-            copyArray[i] = clone((obj as any[])[i])
-        }
-        return copyArray as unknown as T
-    }
-
-    if (obj instanceof Object) {
-        const copyObj: { [key: string]: any } = {}
-        for (const attr in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, attr)) {
-                copyObj[attr] = clone((obj as { [key: string]: any })[attr])
-            }
-        }
-        return copyObj as T
-    }
-
-    throw { code: "OBJECT_TYPE_IS_NOT_SUPPORTED" }
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/API/structuredClone
-// export function clone<T extends Object>(obj: T): T {
-//     return structuredClone(obj)
-// }
-
-// https://gist.github.com/JamieMason/172460a36a0eaef24233e6edb2706f83
-export const compose = (...fns: Function[]) =>
-    (...args: any) => fns.reduceRight(
-        (params, f) => Array.isArray(params) ? f(...params) : f(params),
-        args,
-    )
-
-export const pipe = (...fns: Function[]) =>
-    (...args: any) => fns.reduce(
-        (params, f) => Array.isArray(params) ? f(...params) : f(params),
-        args,
-    )

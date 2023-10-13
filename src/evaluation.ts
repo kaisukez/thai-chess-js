@@ -3,7 +3,7 @@ import { forEachPiece } from "./state"
 import { MoveObject, State } from "./types"
 import { SquareIndex as SI } from "./constants/Board"
 import { Color, PIECE_POWER } from "./constants/Piece"
-import { clone } from "./utils"
+import { clone } from "ramda"
 
 const S1 = 0
 const S2 = 0.16

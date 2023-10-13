@@ -1,3 +1,5 @@
+import { clone } from "ramda"
+
 import {
     ATTACK_OFFSETS,
     ATTACKS,
@@ -7,7 +9,7 @@ import {
 
 } from "./constants/Moving"
 
-import { algebraic, clone, getFile, getRank, swapColor } from "./utils"
+import { getAlgebraic, getFile, getRank, swapColor } from "./utils"
 
 import { countPiece, exportFen, updatePiecePositionDictionary } from "./state"
 
@@ -676,15 +678,15 @@ export function getDisambiguator(
      * the move in question, use the square as the disambiguator
      */
     if (sameRank > 0 && sameFile > 0) {
-        return algebraic(from)
+        return getAlgebraic(from)
     } else if (sameFile > 0) {
         /* if the moving piece rests on the same file, use the rank symbol as the
          * disambiguator
          */
-        return algebraic(from).charAt(1)
+        return getAlgebraic(from).charAt(1)
     } else if (sameRank > 0) {
         /* else use the file symbol */
-        return algebraic(from).charAt(0)
+        return getAlgebraic(from).charAt(0)
     }
 
     return ""
@@ -712,12 +714,12 @@ export function moveToSan(state: State, move: MoveObject) {
 
     if (move.flags & BITS.CAPTURE) {
         if (move.piece === Piece.BIA) {
-            output += algebraic(move.from)[0]
+            output += getAlgebraic(move.from)[0]
         }
         output += "x"
     }
 
-    output += algebraic(move.to)
+    output += getAlgebraic(move.to)
 
     if (move.flags & BITS.PROMOTION && move.promotion) {
         output += "=" + move.promotion.toUpperCase()
@@ -772,8 +774,8 @@ export function moveFromMoveObject(state: State, moveObject: MoveObject) {
             from = move.from
             to = move.to
         } else if (moveObject.from === "string") {
-            from = algebraic(move.from)
-            to = algebraic(move.to)
+            from = getAlgebraic(move.from)
+            to = getAlgebraic(move.to)
         }
 
         if (moveObject.from === from && moveObject.to === to) {

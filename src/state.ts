@@ -1,6 +1,8 @@
+import { clone } from "ramda"
+
 import { BITS } from "./constants/Moving"
 
-import { clone, swapColor } from "./utils"
+import { swapColor } from "./utils"
 
 import { Countdown, MoveObject, PieceCount, SquareData, State, toEnum } from "./types"
 import { CountType, SquareIndex } from "./constants/Board"

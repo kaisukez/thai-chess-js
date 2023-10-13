@@ -1,6 +1,6 @@
-import { BITS } from "./constants/Moving"
+import { clone } from "ramda"
 
-import { clone } from "./utils"
+import { BITS } from "./constants/Moving"
 
 import {
     countPiece,
