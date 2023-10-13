@@ -1,46 +1,48 @@
 import { printBoard } from "./utils"
 
-import { gameOver, generateLegalMoves, move, moveToSan } from "./move"
+import { isGameOver, generateLegalMoves, move, moveToSan } from "./move"
 
 import { importFen } from "./state"
 
 import { State } from "./types"
 import { evaluate, findBestMove } from "./evaluation"
 import { CountType, INITIAL_FEN } from "./constants/Board"
+import { Makruk } from "./Makruk"
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max))
 }
 
 function runUntilGameFinished(state?: State) {
-    state = state || importFen(INITIAL_FEN)
+    const makruk = new Makruk()
     let i = 0
-    while (!gameOver(state)) {
+    while (!makruk.isGameOver()) {
         if (i === 100) {
             break
         }
         console.log("round", i)
-        console.log("score", evaluate(state))
-        // console.log('gameOver(state)', gameOver(state))
-        // console.log('inCheckmate(state)', inCheckmate(state))
-        // console.log('state.activeColor', state.activeColor)
-        // console.log('inCheck(state)', inCheck(state))
-        const m = generateLegalMoves(state)
-        // console.log('m', m.map(mm => moveToSan(state!, mm)))
-        const { bestMove, bestScore } = findBestMove(state, 3)
+        console.log("score", evaluate(makruk.state))
+        // console.log('gameOver(makruk.state)', gameOver(makruk.state))
+        // console.log('inCheckmate(makruk.state)', inCheckmate(makruk.state))
+        // console.log('makruk.state.activeColor', makruk.state.activeColor)
+        // console.log('inCheck(makruk.state)', inCheck(makruk.state))
+        // const m = generateLegalMoves(makruk.state)
+        // console.log("m", m.map(mm => moveToSan(makruk.state, mm)))
+        // console.log("legal moves", generateLegalMoves(makruk.state).map(m => moveToSan(makruk.state, m)))
+        const { bestMove, bestScore } = findBestMove(makruk.state, 3)
         if (!bestMove) {
-            console.log(state.activeColor === "w" ? "white" : "black", "resign")
+            console.log(makruk.state.activeColor === "w" ? "white" : "black", "resign")
             break
         }
         console.log("best", bestMove)
-        console.log("bestMove", moveToSan(state, bestMove), bestScore)
-        // const moves = generateLegalMoves(state)
+        console.log("bestMove", moveToSan(makruk.state, bestMove), bestScore)
+        // const moves = generateLegalMoves(makruk.state)
         // const choosenMove = moves[getRandomInt(moves.length)]
-        // state = move(state, choosenMove)
-        state = move(state, bestMove!)
+        // makruk.state = move(makruk.state, choosenMove)
+        makruk.move(bestMove!)
         i++
 
-        console.log(printBoard(state.boardState))
+        console.log(printBoard(makruk.state.boardState))
     }
     console.log("game over!")
 }

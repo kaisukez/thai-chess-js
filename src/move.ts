@@ -106,7 +106,7 @@ export function inDraw(state: State) {
     )
 }
 
-export function gameOver(state: State) {
+export function isGameOver(state: State) {
     return inDraw(state) || inCheckmate(state)
 }
 
@@ -231,31 +231,17 @@ export function calculateCountdown(state: State): Countdown | null {
  * @param {Number} to 0x88 square
  *
  */
-export function changePiecePositionInplace(
-    boardState: State["boardState"],
-    from: SquareIndex,
-    to: SquareIndex,
-) {
-    if (!from && !to) {
-        return boardState
-    }
-
-    boardState[to] = boardState[from]
-    boardState[from] = null
-
-    return boardState
-}
-
 export function changePiecePosition(
     boardState: State["boardState"],
     from: SquareIndex,
     to: SquareIndex,
 ) {
     if (!from && !to) {
-        return boardState
+        return
     }
-    const newBoardState = clone(boardState)
-    return changePiecePositionInplace(newBoardState, from, to)
+
+    boardState[to] = boardState[from]
+    boardState[from] = null
 }
 
 /**
@@ -264,19 +250,12 @@ export function changePiecePosition(
  * @param {Object} state
  *
  */
-export function stepInplace(state: State) {
+export function step(state: State) {
     if (state.activeColor === Color.BLACK) {
         state.moveNumber++
     }
 
     state.activeColor = swapColor(state.activeColor)
-
-    return state
-}
-
-export function step(state: State) {
-    const newState = clone(state)
-    return stepInplace(newState)
 }
 
 // export function stepBackInplace(state: State) {
@@ -366,11 +345,9 @@ export function stepCountdown(state: State, flags: StepCountdownFlags = {}) {
         return state
     }
 
-    const newState = clone(state)
-
     // if we didn't count yet and we give countdown flag
     // then start counting if countdown flag is valid
-    if (!newState.countdown) {
+    if (!state.countdown) {
         if (
             (startPiecePowerCountdown &&
                 countdown.countType === CountType.PIECE_POWER_COUNTDOWN) ||
@@ -378,9 +355,9 @@ export function stepCountdown(state: State, flags: StepCountdownFlags = {}) {
                 countdown.countType === CountType.BOARD_POWER_COUNTDOWN) ||
             startCountdown
         ) {
-            newState.countdown = countdown
+            state.countdown = countdown
         } else if (hasStartCountdownFlag(flags)) {
-            // console.log(flags, newState.countdown)
+            // console.log(flags, state.countdown)
             throw { code: "WRONG_COUNTDOWN_TYPE" }
         }
     }
@@ -391,13 +368,13 @@ export function stepCountdown(state: State, flags: StepCountdownFlags = {}) {
         if (hasStopCountdownFlag(flags)) {
             if (
                 (stopPiecePowerCountdown &&
-                    newState.countdown.countType === CountType.PIECE_POWER_COUNTDOWN) ||
+                    state.countdown.countType === CountType.PIECE_POWER_COUNTDOWN) ||
                 (stopBoardPowerCountdown &&
-                    newState.countdown.countType === CountType.BOARD_POWER_COUNTDOWN) ||
+                    state.countdown.countType === CountType.BOARD_POWER_COUNTDOWN) ||
                 stopCountdown
             ) {
-                // newState.countdownHistory.push(newState.countdown)
-                newState.countdown = null
+                // state.countdownHistory.push(state.countdown)
+                state.countdown = null
             } else {
                 throw { code: "WRONG_STOP_COUNTDOWN_FLAG" }
             }
@@ -405,23 +382,21 @@ export function stepCountdown(state: State, flags: StepCountdownFlags = {}) {
 
         // continue counting the same type
         else if (
-            newState.countdown.countType === countdown.countType &&
-            newState.activeColor === newState.countdown.countColor
+            state.countdown.countType === countdown.countType &&
+            state.activeColor === state.countdown.countColor
         ) {
-            newState.countdown.count++
+            state.countdown.count++
         }
 
             // continue counting different type only if we change from
         // board power countdown to piece power countdown
         else if (
-            newState.countdown.countType === CountType.BOARD_POWER_COUNTDOWN &&
+            state.countdown.countType === CountType.BOARD_POWER_COUNTDOWN &&
             countdown.countType === CountType.PIECE_POWER_COUNTDOWN
         ) {
-            newState.countdown = countdown
+            state.countdown = countdown
         }
     }
-
-    return newState
 }
 
 // export function stepBackCountdown(state: State) {
@@ -447,62 +422,52 @@ export function makeMove(
     optional = {},
     keepFuture = false,
 ) {
-    let newState = clone(state)
-    // newState.boardState = changePiecePosition(
-    //     state.boardState,
-    //     moveObject.from,
-    //     moveObject.to
-    // )
-    newState.boardState = changePiecePositionInplace(
-        newState.boardState,
+    changePiecePosition(
+        state.boardState,
         moveObject.from,
         moveObject.to,
     )
 
-    newState = stepCountdown(newState, optional)
+    stepCountdown(state, optional)
 
     if (moveObject.flags & BITS.PROMOTION && moveObject.promotion) {
-        newState.boardState[moveObject.to]![1] = moveObject.promotion
+        state.boardState[moveObject.to]![1] = moveObject.promotion
     }
 
-    // newState = step(newState)
-    newState = stepInplace(newState)
+    step(state)
 
     // update position lookup table
-    // newState.piecePositions = updatePiecePositionDictionary(
-    //     newState.piecePositions,
+    // state.piecePositions = updatePiecePositionDictionary(
+    //     state.piecePositions,
     //     moveObject
     // )
     updatePiecePositionDictionary(
-        newState.piecePositions,
+        state.piecePositions,
         moveObject,
     )
 
-    // newState.history.push({ ...moveObject, optional })
+    // state.history.push({ ...moveObject, optional })
     // if (!keepFuture) {
-    //     newState.future = []
+    //     state.future = []
     // }
 
-    const fen = exportFen(newState)
+    const fen = exportFen(state)
 
-    newState.fenOccurrence[fen] = newState.fenOccurrence[fen] ? newState.fenOccurrence[fen] + 1 : 1
-
-    return newState
+    state.fenOccurrence[fen] = state.fenOccurrence[fen] ? state.fenOccurrence[fen] + 1 : 1
 }
 
-export function nextMove(state: State) {
-    if (!state.future || (state.future && state.future.length === 0)) {
-        throw { code: "NO_FUTURE_MOVE" }
-    }
-
-    let newState = clone(state)
-    if (!newState.future) {
-        throw { code: "NO_FUTURE_MOVE" }
-    }
-    const nextMove = newState.future.shift()! // it's not undefined because we've check length of the future earlier
-    newState = makeMove(newState, nextMove, nextMove.optional, true)
-    return newState
-}
+// export function nextMove(state: State) {
+//     if (!state.future || (state.future && state.future.length === 0)) {
+//         throw { code: "NO_FUTURE_MOVE" }
+//     }
+//
+//     let newState = clone(state)
+//     if (!newState.future) {
+//         throw { code: "NO_FUTURE_MOVE" }
+//     }
+//     const nextMove = newState.future.shift()! // it's not undefined because we've check length of the future earlier
+//     makeMove(newState, nextMove, nextMove.optional, true)
+// }
 
 // export function undoMove(state: State) {
 //     if (!state.history || (state.history && state.history.length === 0)) {
@@ -653,7 +618,8 @@ export function generateMovesForOneSquare(
 
     const legalMoves = []
     for (const move of moves) {
-        const newState = makeMove(state, move)
+        const newState = clone(state)
+        makeMove(newState, move)
         if (!isKhunAttacked(newState, swapColor(newState.activeColor))) {
             legalMoves.push(move)
         }
@@ -757,7 +723,8 @@ export function moveToSan(state: State, move: MoveObject) {
         output += "=" + move.promotion.toUpperCase()
     }
 
-    const newState = makeMove(state, move)
+    const newState = clone(state)
+    makeMove(newState, move)
     if (inCheck(newState)) {
         if (inCheckmate(newState)) {
             output += "#"
@@ -827,8 +794,9 @@ export function moveFromMoveObject(state: State, moveObject: MoveObject) {
  *     to: Number, algebraic position like e4 d7 ...
  * }
  *
+ * @param optional
  */
-export function move(state: State, move: Move, optional = {}): State {
+export function move(state: State, move: Move, optional = {}) {
     let moveObject
     if (typeof move === "string") {
         moveObject = moveFromSan(state, move)
@@ -840,7 +808,5 @@ export function move(state: State, move: Move, optional = {}): State {
         throw { code: "INVALID_MOVE" }
     }
 
-    const newState = makeMove(state, moveObject, optional)
-
-    return newState
+    makeMove(state, moveObject, optional)
 }

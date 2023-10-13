@@ -3,6 +3,7 @@ import { forEachPiece } from "./state"
 import { MoveObject, State } from "./types"
 import { SquareIndex as SI } from "./constants/Board"
 import { Color, PIECE_POWER } from "./constants/Piece"
+import { clone } from "./utils"
 
 const S1 = 0
 const S2 = 0.16
@@ -90,7 +91,8 @@ export function minimax(state: State, depth: number, alpha: number, beta: number
 
         for (const move of moves) {
             // console.log('move white', moveToSan(state, move), depth)
-            const nextState = makeMove(state, move)
+            const nextState = clone(state)
+            makeMove(nextState, move)
             const { bestScore } = minimax(nextState, depth - 1, alpha, beta)
             if (bestScore > max) {
                 max = bestScore
@@ -111,7 +113,8 @@ export function minimax(state: State, depth: number, alpha: number, beta: number
         let bestMove = null
         for (const move of moves) {
             // console.log('move black', moveToSan(state, move), depth)
-            const nextState = makeMove(state, move)
+            const nextState = clone(state)
+            makeMove(nextState, move)
             const { bestScore } = minimax(nextState, depth - 1, alpha, beta)
             if (bestScore < min) {
                 min = bestScore
