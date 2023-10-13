@@ -1,13 +1,6 @@
-import { clone } from "ramda"
+import * as R from "ramda"
 
-import {
-    ATTACK_OFFSETS,
-    ATTACKS,
-    BITS, IS_SLIDING_PIECE, MOVE_OFFSETS,
-    RAYS,
-
-
-} from "./constants/Moving"
+import { ATTACK_OFFSETS, ATTACKS, BITS, IS_SLIDING_PIECE, MOVE_OFFSETS, RAYS } from "./constants/Moving"
 
 import { getAlgebraic, getFile, getRank, swapColor } from "./utils"
 
@@ -78,43 +71,38 @@ export function canThisColorAttackThisSquare(
     return false
 }
 
-// isKhunAttacked(state, WHITE) = is white khun attacked
-export function isKhunAttacked(state: State, color: Color) {
-    return canThisColorAttackThisSquare(
-        state.boardState,
+export const isKhunAttacked = (state: State, color: Color) =>
+    canThisColorAttackThisSquare(
+        R.prop("boardState", state),
         swapColor(color),
-        state.piecePositions[color][Piece.KHUN][0],
+        R.path(["piecePositions", color, Piece.KHUN, 0], state),
     )
+
+export const inCheck = R.converge(isKhunAttacked, [R.identity, R.prop("activeColor")])
+
+export const inCheckmate = R.both(
+    inCheck,
+    R.pipe(generateLegalMoves, R.isEmpty),
+)
+
+export const inStalemate = R.both(
+    R.complement(inCheck),
+    R.pipe(generateLegalMoves, R.isEmpty),
+)
+
+export const inThreefoldRepetition = (state: State): boolean => {
+    const occurrences = R.prop("fenOccurrence", state)
+    return R.any(R.gte(R.__, 3), R.values(occurrences))
 }
 
-export function inCheck(state: State) {
-    return isKhunAttacked(state, state.activeColor)
-}
+export const inDraw = R.anyPass([
+    inStalemate,
+    R.pipe(isFinishedCounting, Boolean),
+    insufficientMaterial,
+    inThreefoldRepetition,
+])
 
-export function inCheckmate(state: State) {
-    return inCheck(state) && generateLegalMoves(state).length === 0
-}
-
-export function inStalemate(state: State) {
-    return !inCheck(state) && generateLegalMoves(state).length === 0
-}
-
-export function inDraw(state: State) {
-    return (
-        inStalemate(state) ||
-        isFinishedCounting(state) ||
-        insufficientMaterial(state) ||
-        inThreefoldRepetition(state)
-    )
-}
-
-export function isGameOver(state: State) {
-    return inDraw(state) || inCheckmate(state)
-}
-
-export function inThreefoldRepetition(state: State) {
-    return state.fenOccurrence[state.fenOccurrence.length - 1] >= 3
-}
+export const isGameOver = R.either(inDraw, inCheckmate)
 
 export function insufficientMaterial(state: State): boolean {
     const pieceCount = countPiece(state.piecePositions)
@@ -620,7 +608,7 @@ export function generateMovesForOneSquare(
 
     const legalMoves = []
     for (const move of moves) {
-        const newState = clone(state)
+        const newState = R.clone(state)
         makeMove(newState, move)
         if (!isKhunAttacked(newState, swapColor(newState.activeColor))) {
             legalMoves.push(move)
@@ -725,7 +713,7 @@ export function moveToSan(state: State, move: MoveObject) {
         output += "=" + move.promotion.toUpperCase()
     }
 
-    const newState = clone(state)
+    const newState = R.clone(state)
     makeMove(newState, move)
     if (inCheck(newState)) {
         if (inCheckmate(newState)) {
