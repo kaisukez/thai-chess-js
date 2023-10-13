@@ -1,8 +1,7 @@
-import { importFen, put } from "./state"
-
-import { move } from "./move"
 import { Color, EMPTY_FEN, Piece, SquareIndex } from "./constants"
+import { importFen, put } from "./state"
 import { canThisColorAttackThisSquare } from "./gameStatus"
+import { getAlgebraic } from "./utils"
 
 const { WHITE, BLACK } = Color
 const { BIA, FLIPPED_BIA, MA, THON, MET, RUA, KHUN } = Piece
@@ -20,17 +19,17 @@ const {
 } = SquareIndex
 // @formatter:on
 
-describe("move", () => {
-    describe("canTh,isColorAttackThisSquare", () => {
-        // TODO
+describe("gameStatus", () => {
+    describe("canThisColorAttackThisSquare", () => {
         const setup = () => {
             const state = importFen(EMPTY_FEN)
             put(state, WHITE, BIA, c5)
             return { state }
         }
 
-        const tests = [
+        const testScenarios = [
             {
+                case: 1,
                 color: WHITE,
                 piece: BIA,
                 square: f5,
@@ -38,6 +37,7 @@ describe("move", () => {
                 cannotAttack: [f5, f6, e4, g4],
             },
             {
+                case: 2,
                 color: BLACK,
                 piece: BIA,
                 square: f5,
@@ -45,6 +45,7 @@ describe("move", () => {
                 cannotAttack: [f5, f4, e6, g6],
             },
             {
+                case: 3,
                 color: WHITE,
                 piece: THON,
                 square: f5,
@@ -52,6 +53,7 @@ describe("move", () => {
                 cannotAttack: [e5, g5, f4],
             },
             {
+                case: 4,
                 color: BLACK,
                 piece: THON,
                 square: f5,
@@ -60,6 +62,7 @@ describe("move", () => {
             },
 
             {
+                case: 5,
                 color: WHITE,
                 piece: FLIPPED_BIA,
                 square: f5,
@@ -67,6 +70,7 @@ describe("move", () => {
                 cannotAttack: [f6, e5, g5, f4],
             },
             {
+                case: 6,
                 color: BLACK,
                 piece: FLIPPED_BIA,
                 square: f5,
@@ -74,6 +78,7 @@ describe("move", () => {
                 cannotAttack: [f6, e5, g5, f4],
             },
             {
+                case: 7,
                 color: WHITE,
                 piece: MET,
                 square: f5,
@@ -81,6 +86,7 @@ describe("move", () => {
                 cannotAttack: [f6, e5, g5, f4],
             },
             {
+                case: 8,
                 color: BLACK,
                 piece: MET,
                 square: f5,
@@ -89,6 +95,7 @@ describe("move", () => {
             },
 
             {
+                case: 9,
                 color: WHITE,
                 piece: MA,
                 square: f5,
@@ -96,6 +103,7 @@ describe("move", () => {
                 cannotAttack: [d7, f7, h7, e6, f6, g6, d5, e5, g5, h5, e4, f4, g4, d3, f3, h3],
             },
             {
+                case: 10,
                 color: BLACK,
                 piece: MA,
                 square: f5,
@@ -104,6 +112,7 @@ describe("move", () => {
             },
 
             {
+                case: 11,
                 color: WHITE,
                 piece: KHUN,
                 square: f5,
@@ -111,6 +120,7 @@ describe("move", () => {
                 cannotAttack: [],
             },
             {
+                case: 12,
                 color: BLACK,
                 piece: KHUN,
                 square: f5,
@@ -119,6 +129,7 @@ describe("move", () => {
             },
 
             {
+                case: 13,
                 color: WHITE,
                 piece: RUA,
                 square: e4,
@@ -126,6 +137,7 @@ describe("move", () => {
                 cannotAttack: [],
             },
             {
+                case: 14,
                 color: BLACK,
                 piece: RUA,
                 square: e4,
@@ -133,6 +145,7 @@ describe("move", () => {
                 cannotAttack: [],
             },
             {
+                case: 15,
                 color: WHITE,
                 piece: RUA,
                 square: f5,
@@ -140,6 +153,7 @@ describe("move", () => {
                 cannotAttack: [b5, a5],
             },
             {
+                case: 16,
                 color: BLACK,
                 piece: RUA,
                 square: f5,
@@ -148,40 +162,29 @@ describe("move", () => {
             },
         ]
 
-        test("can perform correctly", () => {
-            for (const test of tests) {
-                const {
-                    color,
-                    piece,
-                    square,
-                    canAttack,
-                    cannotAttack,
-                } = test
+        const testCases = testScenarios.flatMap(scenario => [
+            ...scenario.canAttack.map(target => ({
+                ...scenario, action: "should",
+                squareName: getAlgebraic(scenario.square),
+                target,
+                targetName: getAlgebraic(target),
+            })),
+            ...scenario.cannotAttack.map(target => ({
+                ...scenario, action: "should not",
+                squareName: getAlgebraic(scenario.square),
+                target,
+                targetName: getAlgebraic(target),
+            })),
+        ])
 
-                const { state } = setup()
-                put(state, color, piece, square)
+        test.each(testCases)(`
+            [case $case] it $action be able to attack $targetName square when using $color $piece from $squareName
+        `, ({ color, piece, square, action, target }) => {
+            const { state } = setup()
+            put(state, color, piece, square)
 
-                // const newState = pipe(
-                //     put(state, color, piece, square),
-                //     state => state
-                // )(state)
-
-                for (const square of canAttack) {
-                    const result = canThisColorAttackThisSquare(state.boardState, color, square)
-                    if (!result) {
-                        console.log("this test didn't pass", test)
-                    }
-                    expect(result).toBe(true)
-                }
-                for (const square of cannotAttack) {
-                    const result = canThisColorAttackThisSquare(state.boardState, color, square)
-                    if (result) {
-                        console.log("this test didn't pass", test)
-                    }
-                    expect(result).toBe(false)
-                }
-            }
-
+            const result = canThisColorAttackThisSquare(state.boardState, color, target)
+            expect(result).toBe(action === "should")
         })
     })
 })
