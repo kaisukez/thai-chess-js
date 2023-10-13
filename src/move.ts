@@ -226,13 +226,14 @@ export function changePiecePosition(
     from: SquareIndex,
     to: SquareIndex,
 ) {
-    if (!from && !to) {
+    if (!from || from === to) {
         return
     }
 
     boardState[to] = boardState[from]
     boardState[from] = null
 }
+
 
 /**
  * Increase move counter (if black have made a move) and swap color
@@ -427,10 +428,6 @@ export function makeMove(
     step(state)
 
     // update position lookup table
-    // state.piecePositions = updatePiecePositionDictionary(
-    //     state.piecePositions,
-    //     moveObject
-    // )
     updatePiecePositionDictionary(
         state.piecePositions,
         moveObject,
