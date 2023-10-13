@@ -1,7 +1,6 @@
 import { clone } from "ramda"
 
-import { BITS } from "./constants/Moving"
-
+import { BITS, Color, CountType, Piece, SquareIndex } from "./constants"
 import {
     countPiece,
     exportFen,
@@ -17,8 +16,6 @@ import {
     updatePiecePositionDictionary,
 } from "./state"
 import { MoveObject, State } from "./types"
-import { CountType, SquareIndex } from "./constants/Board"
-import { Color, Piece } from "./constants/Piece"
 
 
 const { WHITE, BLACK } = Color

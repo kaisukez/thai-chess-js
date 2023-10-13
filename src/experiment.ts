@@ -1,6 +1,6 @@
 import { printBoard } from "./utils"
 
-import { isGameOver, generateLegalMoves, move, moveToSan } from "./move"
+import { generateLegalMoves, move, moveToSan } from "./move"
 
 import { importFen } from "./state"
 
@@ -8,6 +8,7 @@ import { State } from "./types"
 import { evaluate, findBestMove } from "./evaluation"
 import { CountType, INITIAL_FEN } from "./constants/Board"
 import { Makruk } from "./Makruk"
+import { isGameOver } from "./gameStatus"
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max))

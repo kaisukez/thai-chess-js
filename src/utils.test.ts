@@ -1,7 +1,7 @@
 import { clone } from "ramda"
 
 import { getAlgebraic, getFile, getRank, swapColor } from "./utils"
-import { Color } from "./constants/Piece"
+import { Color } from "./constants"
 
 describe("utils", () => {
     describe("swapColor", () => {

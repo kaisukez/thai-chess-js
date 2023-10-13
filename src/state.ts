@@ -1,12 +1,6 @@
-import { clone } from "ramda"
-
-import { BITS } from "./constants/Moving"
-
+import { BITS, Color, CountType, Piece, SquareIndex } from "./constants"
 import { swapColor } from "./utils"
-
 import { Countdown, MoveObject, PieceCount, SquareData, State, toEnum } from "./types"
-import { CountType, SquareIndex } from "./constants/Board"
-import { Color, Piece } from "./constants/Piece"
 
 export type ExtractInfoFromFenOutput = {
     boardString: string;

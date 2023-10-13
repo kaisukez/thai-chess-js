@@ -1,7 +1,8 @@
 import { Move, State } from "./types"
 import { importFen } from "./state"
-import { isGameOver, move } from "./move"
-import { INITIAL_FEN } from "./constants/Board"
+import { move } from "./move"
+import { INITIAL_FEN } from "./constants"
+import { isGameOver } from "./gameStatus"
 
 export class Makruk {
     state: State

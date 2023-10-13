@@ -1,8 +1,8 @@
 import { importFen, put } from "./state"
 
-import { canThisColorAttackThisSquare, move } from "./move"
-import { EMPTY_FEN, SquareIndex } from "./constants/Board"
-import { Color, Piece } from "./constants/Piece"
+import { move } from "./move"
+import { Color, EMPTY_FEN, Piece, SquareIndex } from "./constants"
+import { canThisColorAttackThisSquare } from "./gameStatus"
 
 const { WHITE, BLACK } = Color
 const { BIA, FLIPPED_BIA, MA, THON, MET, RUA, KHUN } = Piece

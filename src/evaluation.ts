@@ -1,9 +1,9 @@
-import { generateLegalMoves, generateMovesForOneSquare, inCheckmate, inDraw, makeMove } from "./move"
+import { generateLegalMoves, generateMovesForOneSquare, makeMove } from "./move"
 import { forEachPiece } from "./state"
 import { MoveObject, State } from "./types"
-import { SquareIndex as SI } from "./constants/Board"
-import { Color, PIECE_POWER } from "./constants/Piece"
+import { Color, PIECE_POWER, SquareIndex as SI } from "./constants"
 import { clone } from "ramda"
+import { inCheckmate, inDraw } from "./gameStatus"
 
 const S1 = 0
 const S2 = 0.16

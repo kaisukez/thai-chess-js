@@ -1,8 +1,7 @@
 import * as R from "ramda"
 
 import { State } from "./types"
-import { FILE_A, SquareIndex } from "./constants/Board"
-import { Color } from "./constants/Piece"
+import { Color, FILE_A, SquareIndex } from "./constants"
 
 // export function getSquareColor(square: SquareIndex) {
 //     const _file = square & 1
